@@ -1,0 +1,48 @@
+void setup() {
+
+function to get num of users
+
+print to lcd how many users
+up down enter go back
+
+
+int TotPlayers;
+int BadPlayers;
+int Deciders;
+bool continue = false;
+while (!continue)
+{
+  //print to LCD
+  string line1 = "How many players?"
+  string line2 = "Blue + players, Red - Players, Green - Enter"
+  if(btn == blue)
+  TotPlayers++;
+  if(btn == red)
+  if (TotPlayers >3)
+  TotPlayers--;
+  if(btn == Green)
+  continue = true;
+}
+
+
+  
+  // put your setup code here, to run once:
+  state pins for buttons 1-4
+  state pins for leds
+  total players
+  players to choose events
+  2/3 make decision
+  
+  have button variables
+  array of buttons
+  array of leds
+  green led is 100 success
+  75 50 25
+  speed of chance
+  
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+
+}
