@@ -42,7 +42,7 @@ void events();
 int ledMiniGame(int lcdMovementSpeed);
 
 int passDelay = 500;
-int failDelay = 300;
+int failDelay = 500;
 
 void setup() {
 Serial.begin(9600);
@@ -60,13 +60,14 @@ Serial.begin(9600);
     pinMode(btns[i],INPUT);
   }
 wait =0;
-while(!wait)
-{ 
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print("   ANT CHRIST");
   lcd.setCursor(0,1);
   lcd.print("GRN to cont");
+while(!wait)
+{ 
+
     btnState();
   if(state[GREEN])
   {
@@ -77,21 +78,26 @@ while(!wait)
 //FIND NUmber of players
 
 btnOff();
-Serial.print("start wait for button");
 wait =0;
-while(!wait)
-{ 
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print(String("# Players: ")+String(numPlayers));
   lcd.setCursor(0,1);
   lcd.print("Blu^ YLOv GRN K");
+while(!wait)
+{ 
+
   btnState();
   if(state[BLUE])
   {
     if(numPlayers<MAXPlayers)
     {
       numPlayers++;
+        lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print(String("# Players: ")+String(numPlayers));
+  lcd.setCursor(0,1);
+  lcd.print("Blu^ YLOv GRN K");
     }else
     {
       lcd.clear();
@@ -106,6 +112,11 @@ while(!wait)
     if(numPlayers>MINPlayers)
     {
       numPlayers--;
+        lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print(String("# Players: ")+String(numPlayers));
+  lcd.setCursor(0,1);
+  lcd.print("Blu^ YLOv GRN K");
     }else
     {
       lcd.clear();
@@ -144,13 +155,14 @@ while(antChrists>0)
 for(int i =0; i< numPlayers;i++)
 {
 wait =0;
-while(!wait)
-{ 
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print(String("Give to Plyr ")+String(i+1));
   lcd.setCursor(0,1);
   lcd.print("GRN to cont");
+while(!wait)
+{ 
+
   btnState();
 
   if(state[GREEN])
@@ -162,13 +174,14 @@ while(!wait)
 if(players[i])
 {
   wait =0;
-while(!wait)
-{ 
-  lcd.clear();
+    lcd.clear();
   lcd.setCursor(0,0);
   lcd.print(String("Plyr")+String(i+1)+String(" AntChrist"));
   lcd.setCursor(0,1);
   lcd.print("GRN to cont");
+while(!wait)
+{ 
+
     btnState();
 
   if(state[GREEN])
@@ -180,13 +193,14 @@ while(!wait)
 }else
 {
     wait =0;
-while(!wait)
-{ 
-  lcd.clear();
+      lcd.clear();
   lcd.setCursor(0,0);
   lcd.print(String("Plyr")+String(i+1)+String(" Ant"));
   lcd.setCursor(0,1);
   lcd.print("GRN to cont");
+while(!wait)
+{ 
+
     btnState();
 
   if(state[GREEN])
@@ -200,14 +214,16 @@ while(!wait)
 }
 
 void loop() {
-wait =0;
-while(!wait)
-{ 
-  lcd.clear();
+    lcd.clear();
   lcd.setCursor(0,0);
   lcd.print(String("Plyr")+String(currentPlayer+1)+String(" is Queen"));
   lcd.setCursor(0,1);
   lcd.print("GRN to cont");
+wait =0;
+
+while(!wait)
+{ 
+
     btnState();
 
   if(state[GREEN])
@@ -216,14 +232,16 @@ while(!wait)
   }
   btnOff();
 }
-wait =0;
-while(!wait)
-{ 
   lcd.clear();
   lcd.setCursor(0,0);
   lcd.print(String("Plz pick")+String(numAdvisors)+String("Advsrs"));
   lcd.setCursor(0,1);
   lcd.print("GRN to cont");
+wait =0;
+
+while(!wait)
+{ 
+
     btnState();
 
   if(state[GREEN])
@@ -245,13 +263,14 @@ void events()
   if(randNumber)//Good event
   {
         wait =0;
-while(!wait)
-{ 
-  lcd.clear();
+          lcd.clear();
   lcd.setCursor(0,0);
   lcd.print("Good Event!");
   lcd.setCursor(0,1);
   lcd.print("GRN to cont");
+while(!wait)
+{ 
+
     btnState();
 
   if(state[GREEN])
@@ -265,13 +284,14 @@ eventFlag =0;
   }else//Bad Event
   {
             wait =0;
-while(!wait)
-{ 
-  lcd.clear();
+              lcd.clear();
   lcd.setCursor(0,0);
   lcd.print("Bad Event!");
   lcd.setCursor(0,1);
   lcd.print("GRN to cont");
+while(!wait)
+{ 
+
     btnState();
 
   if(state[GREEN])
@@ -291,7 +311,10 @@ eventFlag =1;
   {
     lcdMovementSpeed = failDelay;
   }
-  if(ledMiniGame(lcdMovementSpeed) == blue1 || (ledMiniGame(lcdMovementSpeed) == blue2)){
+  int ledPar = ledMiniGame(lcdMovementSpeed);
+
+  
+  if(ledPar == blue1 || ledPar == blue2){
     //set the probability
     //lose 75% of ants
     if(eventFlag == 1) {
@@ -299,7 +322,7 @@ eventFlag =1;
     }
     //or gain 0% of ants so do nothing for else
     
-  } else if(ledMiniGame(lcdMovementSpeed) == green1 || (ledMiniGame(lcdMovementSpeed) == green2)) {
+  } else if(ledPar == green1 || ledPar == green2) {
     //lose 50% of ants
     //gain 25% of ants
     if(eventFlag == 1) {//Bad event
@@ -307,7 +330,7 @@ eventFlag =1;
     } else {
       ants = ants + (ants*0.25);
     }
-  } else if(ledMiniGame(lcdMovementSpeed) == yellow1 || (ledMiniGame(lcdMovementSpeed) == yellow2)) {
+  } else if(ledPar == yellow1 || ledPar == yellow2) {
     //lose 25% of ants
     if(eventFlag == 1) {
       ants = ants - (ants*0.25);
@@ -315,7 +338,7 @@ eventFlag =1;
       ants = ants + (ants*0.75);
     }
     
-  } else if(ledMiniGame(lcdMovementSpeed) == red1) {
+  } else if(ledPar == red1) {
     //lose 0% of ants nothing to be done for eventFlag == 1
     //gain 100% of ants
     if(eventFlag == 0) {//good event
@@ -323,13 +346,14 @@ eventFlag =1;
     }
   }
   wait =0;
-while(!wait)
-{ 
-  lcd.clear();
+    lcd.clear();
   lcd.setCursor(0,0);
   lcd.print(String("Ants: ")+String(ants));
   lcd.setCursor(0,1);
   lcd.print("GRN to cont");
+while(!wait)
+{ 
+
     btnState();
 
   if(state[GREEN])
@@ -346,13 +370,14 @@ bool passOrFail(int eventFlag)
   for(int i =0;i<numAdvisors;i++)
   {
                 wait =0;
-while(!wait)
-{ 
-  lcd.clear();
+                  lcd.clear();
   lcd.setCursor(0,0);
   lcd.print(String("Advisor ")+String(i+1)+String("?"));
   lcd.setCursor(0,1);
   lcd.print("GRN to cont");
+while(!wait)
+{ 
+
     btnState();
 
   if(state[GREEN])
@@ -416,13 +441,14 @@ int ledMiniGame(int lcdMovementSpeed){//returns a percentage of pass or fail
   unsigned int tempD = debounceDelay;
   debounceDelay = 50;
   wait =0;
-while(!wait)
-{ 
-  lcd.clear();
+    lcd.clear();
   lcd.setCursor(0,0);
   lcd.print("Give to Queen");
   lcd.setCursor(0,1);
   lcd.print("GRN to cont");
+while(!wait)
+{ 
+
     btnState();
 
   if(state[GREEN])
@@ -432,13 +458,14 @@ while(!wait)
   btnOff();
 } 
   wait =0;
-while(!wait)
-{ 
-  lcd.clear();
+    lcd.clear();
   lcd.setCursor(0,0);
   lcd.print("Ready Queen?");
   lcd.setCursor(0,1);
   lcd.print("GRN to cont");
+while(!wait)
+{ 
+
     btnState();
 
   if(state[GREEN])
