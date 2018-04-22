@@ -3,16 +3,11 @@
 #include <LCD.h>
 #include <LiquidCrystal.h>
 #include <LiquidCrystal_I2C.h>
-#include <LiquidCrystal_I2C_ByVac.h>
-#include <LiquidCrystal_SI2C.h>
 #include <LiquidCrystal_SR.h>
-#include <LiquidCrystal_SR1W.h>
 #include <LiquidCrystal_SR2W.h>
 #include <LiquidCrystal_SR3W.h>
-#include <SI2CIO.h>
-#include <SoftI2CMaster.h>
 
-
+#include <Wire.h>
 #include <ArduinoSTL.h>
 
 
@@ -20,13 +15,15 @@
   enum led {blue1,green1,yellow1,red1,yellow2,green2,blue2};
   const int btns[] = {2,3,4,5};
   const int leds[] = {7,8,9,10,11,12,13};
-  LiquidCrystal_I2C lcd(0x3F,2 1, 0, 4, 5, 6, 7, 3, POSITIVE);
+LiquidCrystal_I2C lcd(0x3F,2,1,0,4,5,6,7);
 //2 thirds decide
 //
 void setup() {
   Serial.begin(9600);
   
   lcd.begin(16, 2);
+  lcd.setBacklightPin(3,POSITIVE);
+  lcd.setBacklight(HIGH);
   lcd.clear();
   lcd.print("Hello World");
   for ( int i =0; i< 7;i++)//Initialize leds as output
