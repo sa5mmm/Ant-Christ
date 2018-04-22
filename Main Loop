@@ -1,44 +1,42 @@
+#include <FastIO.h>
+#include <I2CIO.h>
+#include <LCD.h>
+#include <LiquidCrystal.h>
+#include <LiquidCrystal_I2C.h>
+#include <LiquidCrystal_I2C_ByVac.h>
+#include <LiquidCrystal_SI2C.h>
+#include <LiquidCrystal_SR.h>
+#include <LiquidCrystal_SR1W.h>
+#include <LiquidCrystal_SR2W.h>
+#include <LiquidCrystal_SR3W.h>
+#include <SI2CIO.h>
+#include <SoftI2CMaster.h>
+
+
+#include <ArduinoSTL.h>
+
+
+  enum btnColors {BLUE,GREEN,YELLOW,RED};
+  enum led {blue1,green1,yellow1,red1,yellow2,green2,blue2};
+  const int btns[] = {2,3,4,5};
+  const int leds[] = {7,8,9,10,11,12,13};
+  LiquidCrystal_I2C lcd(0x3F,2 1, 0, 4, 5, 6, 7, 3, POSITIVE);
+//2 thirds decide
+//
 void setup() {
-
-function to get num of users
-
-print to lcd how many users
-up down enter go back
-
-
-int TotPlayers;
-int BadPlayers;
-int Deciders;
-bool continue = false;
-while (!continue)
-{
-  //print to LCD
-  string line1 = "How many players?"
-  string line2 = "Blue + players, Red - Players, Green - Enter"
-  if(btn == blue)
-  TotPlayers++;
-  if(btn == red)
-  if (TotPlayers >3)
-  TotPlayers--;
-  if(btn == Green)
-  continue = true;
-}
-
-
+  Serial.begin(9600);
   
-  // put your setup code here, to run once:
-  state pins for buttons 1-4
-  state pins for leds
-  total players
-  players to choose events
-  2/3 make decision
-  
-  have button variables
-  array of buttons
-  array of leds
-  green led is 100 success
-  75 50 25
-  speed of chance
+  lcd.begin(16, 2);
+  lcd.clear();
+  lcd.print("Hello World");
+  for ( int i =0; i< 7;i++)//Initialize leds as output
+  {
+    pinMode(leds[i],OUTPUT);
+  }
+  for (int i =0; i< 4;i++)//Initialize btns as input
+  {
+    pinMode(btns[i],INPUT);
+  }
   
 }
 
