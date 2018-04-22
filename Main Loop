@@ -1,4 +1,6 @@
-//https://www.arduino.cc/en/Reference/LiquidCrystal
+#include <ArduinoSTL.h>
+#include<Wire.h>
+#include<string>
 
 #include <FastIO.h>
 #include <I2CIO.h>
@@ -9,25 +11,40 @@
 #include <LiquidCrystal_SR2W.h>
 #include <LiquidCrystal_SR3W.h>
 
-#include <Wire.h>
-#include <ArduinoSTL.h>
-#include <string>
+
 unsigned long lastDebounceTime =0;
-unsigned long debounceDelay = 50;
+unsigned long debounceDelay = 250;
   enum btnColors {RED,BLUE,GREEN,YELLOW};
   enum led {blue1,green1,yellow1,red1,yellow2,green2,blue2};
   const int btns[] = {2,3,4,5};
   const int leds[] = {7,8,9,10,11,12,13};
+  bool state[] = {0,0,0,0};
+  bool wait = 0;
+
 LiquidCrystal_I2C lcd(0x3F,2,1,0,4,5,6,7);
-int ants =100;
-int TotPlayers =3;
-int MaxNumAdvisors =0;
+
+//Utility variables
+int numPlayers = 3;
+const int MAXPlayers =10;
+const int MINPlayers =3;
+int numAdvisors =0;
+int antChrists =0;
+//Game Variables
+int ants = 100;
+int gamePrompt = 3000;
+std::vector<bool> players;
+//Function Prototypes
+void btnState();
+void btnOff();
 bool passOrFail(int advisors);
 void events();
 int ledMiniGame(int lcdMovementSpeed);
-int randNumber;
+
+int passDelay = 500;
+int failDelay = 300;
+
 void setup() {
-  Serial.begin(9600);
+Serial.begin(9600);
   randomSeed(analogRead(0));
   lcd.begin(16, 2);
   lcd.setBacklightPin(3,POSITIVE);
@@ -41,156 +58,191 @@ void setup() {
   {
     pinMode(btns[i],INPUT);
   }
-  //Find number of players
-while(!digitalRead(btns[GREEN]))
-{
+
+//FIND NUmber of players
+
+btnOff();
+Serial.print("start wait for button");
+wait =0;
+while(!wait)
+{ 
   lcd.clear();
-    lcd.setCursor(0,0);
-    lcd.print(String("# Players: ")+String(TotPlayers));
-    lcd.setCursor(0,1);
-    lcd.print("BLU^ YLOv GRN K");
-    if(digitalRead(btns[BLUE]))
-    {
-      
-      TotPlayers++;
-    }else if (digitalRead(btns[YELLOW]))
-    {
-      if(TotPlayers>3)
-      {
-        TotPlayers--;
-      }else
-      {
-        lcd.clear();
-    lcd.setCursor(0,0);
-    lcd.print("Cannot have less than 3 players!");
-      }
-    }
-}
-
-
-  MaxNumAdvisors = TotPlayers *2/3;
-
-  std::vector<bool> players;
-  for (int i =0; i<TotPlayers;i++)//Create vector with empty roles
+  lcd.setCursor(0,0);
+  lcd.print(String("# Players: ")+String(numPlayers));
+  lcd.setCursor(0,1);
+  lcd.print("Blu^ YLOv GRN K");
+  btnState();
+  if(state[BLUE])
   {
-    players.push_back(0);
-  }
-  int antChrists = TotPlayers/3;//Find total number of ant christs
-  while(antChrists >0)//Assign players 0 for regular player 1 for antichrists
-  {
-    int randNumber = random(TotPlayers);
-    if(players[randNumber] == 0)//If the random player is not already an antchrist make them an ant christ.
+    if(numPlayers<MAXPlayers)
     {
-      antChrists--;
-      players[randNumber] =1;
-    }
-  }
-  //Tell player roles
-  for( int i =0;i<TotPlayers;i++)
-  {
-    lcd.clear();
-    lcd.setCursor(0,0);
-    lcd.print("Are you ready?");
-    lcd.setCursor(0,1);
-    lcd.print("Press Green");
-    while(digitalRead(btns[GREEN])==HIGH)
-    {
-    }
-    if(players[i]==1)//They are ant christ
-    {
-    lcd.clear();
-    lcd.setCursor(0,0);
-    lcd.print("You are an AntChrist!");
-    lcd.setCursor(0,1);
-    lcd.print("Press Green to continue!");
-    while(digitalRead(btns[GREEN])==HIGH)
-    {
-    }
+      numPlayers++;
     }else
     {
-    lcd.clear();
-    lcd.setCursor(0,0);
-    lcd.print("You are an Ant!");
-    lcd.setCursor(0,1);
-    lcd.print("Press Green to continue!");
-    while(digitalRead(btns[GREEN])==HIGH)
-    {
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print(String("No more than")+String(MAXPlayers));
+      lcd.setCursor(0,1);
+      lcd.print("");
     }
   }
+  if(state[YELLOW])
+  {
+    if(numPlayers>MINPlayers)
+    {
+      numPlayers--;
+    }else
+    {
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print(String("No less than")+String(MINPlayers));
+      lcd.setCursor(0,1);
+      lcd.print("");
+    }
+  }
+  if(state[GREEN])
+  {
+    wait = state[GREEN];
+  }
+  btnOff();
+}
+Serial.print("end wait for button");
+lcd.clear();
+btnState();
+numAdvisors = numPlayers*2/3;
+
+for (int i =0; i<numPlayers;i++)
+{
+  players.push_back(0);
+}
+antChrists=numPlayers/3;
+while(antChrists>0)
+{
+  int randNumber = random(numPlayers);
+  if(players[randNumber]==0)
+  {
+    players[randNumber]=1;
+    antChrists--;
   }
 }
-  
- 
 
+
+for(int i =0; i< numPlayers;i++)
+{
+wait =0;
+while(!wait)
+{ 
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print(String("Give to Plyr ")+String(i+1));
+  lcd.setCursor(0,1);
+  lcd.print("GRN to cont");
+  btnState();
+
+  if(state[GREEN])
+  {
+    wait = state[GREEN];
+  }
+  btnOff();  
+}
+if(players[i])
+{
+  wait =0;
+while(!wait)
+{ 
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print(String("Plyr")+String(i+1)+String(" AntChrist"));
+  lcd.setCursor(0,1);
+  lcd.print("GRN to cont");
+    btnState();
+
+  if(state[GREEN])
+  {
+    wait = state[GREEN];
+  }
+  btnOff();  
+}
+}else
+{
+    wait =0;
+while(!wait)
+{ 
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print(String("Plyr")+String(i+1)+String(" Ant"));
+  lcd.setCursor(0,1);
+  lcd.print("GRN to cont");
+    btnState();
+
+  if(state[GREEN])
+  {
+    wait = state[GREEN];
+  }
+  btnOff();  
+}
+} 
+}
+}
 
 void loop() {
-  // put your main code here, to run repeatedly:
 
 }
-bool passOrFail(int advisors) {
-  int pass,fail;
 
-  for(int i = advisors; i < MaxNumAdvisors; i++) {
-
-    while(digitalRead((!btns[GREEN])) && digitalRead(!btns[RED])) {
-    lcd.clear();
-    lcd.begin(0, 0);
-    lcd.print("Ready to Choose?");
-    lcd.setCursor(0, 1);
-    lcd.print("Green yes, Red no");
-    digitalRead(btns[GREEN]);
-    digitalRead(btns[RED]);
-    if(digitalRead(btns[GREEN]) == HIGH){
-      break;
-    }
-    }
-    while(digitalRead((!btns[GREEN])) && digitalRead(!btns[RED])){
-    lcd.clear();
-    lcd.begin(0,0);
-    lcd.print("Advisor ");
-    lcd.print(i);
-    lcd.setCursor(0, 1);
-    lcd.print("Pass or Fail?");
-    delay(2000);
-    }
-    digitalRead(btns[GREEN]);
-    digitalRead(btns[RED]);
-    if(digitalRead(btns[GREEN]) == HIGH){
-      pass += 1;
-    }else if(digitalRead(btns[RED]) == HIGH) {
-      fail += 1;
-    }
-  
-    }
-  if(pass >= fail) {
-    return true;
-  }else{
-    return false;
-  }
-}
-void events(){
+void events()
+{
   int lcdMovementSpeed;
   int eventFlag;
-  randNumber = random(0, 1);
-  if(passOrFail(MaxNumAdvisors) == true) {
-  lcdMovementSpeed = 1000;//easy
-  } else {
-    lcdMovementSpeed = 100;//difficult
+  int randNumber = random(1);
+  if(randNumber)//Good event
+  {
+        wait =0;
+while(!wait)
+{ 
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("Good Event!");
+  lcd.setCursor(0,1);
+  lcd.print("GRN to cont");
+    btnState();
+
+  if(state[GREEN])
+  {
+    wait = state[GREEN];
   }
-  if(randNumber == 0) {//0 is good event
-    //good event
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print("Good Event!");
-    eventFlag = 0;//Good Event
-    delay(3000);
-  } else {//1 is bad event
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print("Bad Event.");
-    eventFlag = 1;//Bad event
+  btnOff();  
+  
+}
+eventFlag =0;
+  }else//Bad Event
+  {
+            wait =0;
+while(!wait)
+{ 
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("Bad Event!");
+  lcd.setCursor(0,1);
+  lcd.print("GRN to cont");
+    btnState();
+
+  if(state[GREEN])
+  {
+    wait = state[GREEN];
+  }
+  btnOff();  
+}
+eventFlag =1;
   }
 
+  
+  if(passOrFail(eventFlag))
+  {
+    lcdMovementSpeed = passDelay;
+  }else
+  {
+    lcdMovementSpeed = failDelay;
+  }
   if(ledMiniGame(lcdMovementSpeed) == blue1 || (ledMiniGame(lcdMovementSpeed) == blue2)){
     //set the probability
     //lose 75% of ants
@@ -222,39 +274,235 @@ void events(){
       ants = ants + (ants);
     }
   }
-  
-  
-}//void events
-
-
-//mini game
-int ledMiniGame(int lcdMovementSpeed){//returns a percentage of pass or fail
+  wait =0;
+while(!wait)
+{ 
   lcd.clear();
-  lcd.setCursor(0, 0);
-  lcd.print("A test of skill!");
-  delay(3000);//delay three seconds
+  lcd.setCursor(0,0);
+  lcd.print(String("Ants: ")+String(ants));
+  lcd.setCursor(0,1);
+  lcd.print("GRN to cont");
+    btnState();
 
-while(!digitalRead(btns[GREEN])) {
-  for (int i = 0; i < 7; i++){
-    //if buttonRead == 0, button is not being pressed
-    digitalWrite(leds[i], HIGH);
-    delay(lcdMovementSpeed);
-    digitalWrite(leds[i], LOW);
-    digitalRead(btns[GREEN]);
-    if(digitalRead(btns[GREEN]) == HIGH){
-      return i;
-    }
+  if(state[GREEN])
+  {
+    wait = 1;
   }
-
-  for (int i = 7; i > 0; i--) {
-    digitalWrite(leds[i], HIGH);
-    delay(lcdMovementSpeed);
-    digitalWrite(leds[i], LOW);
-    digitalRead(btns[GREEN]);
-    if(digitalRead(btns[GREEN]) == HIGH){
-      return i;
-    }
-  }
-  
+  btnOff();  
 }
+}
+
+bool passOrFail(int eventFlag)
+{
+  int good,bad;//FAvorable for ant colony!
+  for(int i =0;i<numAdvisors;i++)
+  {
+                wait =0;
+while(!wait)
+{ 
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print(String("Advisor ")+String(i+1)+String("?"));
+  lcd.setCursor(0,1);
+  lcd.print("GRN to cont");
+    btnState();
+
+  if(state[GREEN])
+  {
+    wait = 1;
+  }
+  btnOff();  
+}
+                wait =0;
+while(!wait)
+{ 
+  lcd.clear();
+  lcd.setCursor(0,0);
+  if(eventFlag)
+  {
+  lcd.print("Bad Evnt occrs?");
+  }else
+  {
+    lcd.print("Good Evnt occrs?");
+  }
+  lcd.setCursor(0,1);
+  lcd.print("GRN=YES RED=NO");
+    btnState();
+
+  if(state[GREEN])
+  {
+    wait = 1;
+    if(eventFlag)
+    {
+      bad++;
+    }else
+    {
+      good++;
+    }
+  }else if(state[RED])
+  {
+    wait =1;
+        if(eventFlag)
+    {
+      good++;
+    }else
+    {
+      bad++;
+    }
+  }
+  btnOff();  
+}
+  }
+  if(good>=bad){
+    return true;
+  }else
+  {
+    return false;
+  }
+}
+
+
+
+
+int ledMiniGame(int lcdMovementSpeed){//returns a percentage of pass or fail
+  unsigned int tempD = debounceDelay;
+  debounceDelay = 50;
+  wait =0;
+while(!wait)
+{ 
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("Give to Queen");
+  lcd.setCursor(0,1);
+  lcd.print("GRN to cont");
+    btnState();
+
+  if(state[GREEN])
+  {
+    wait = state[GREEN];
+  }
+  btnOff();
+} 
+  wait =0;
+while(!wait)
+{ 
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("Ready Queen?");
+  lcd.setCursor(0,1);
+  lcd.print("GRN to cont");
+    btnState();
+
+  if(state[GREEN])
+  {
+    wait = state[GREEN];
+  }
+  btnOff(); 
+}
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("A test of skill!");
+  lcd.setCursor(0,1);
+  lcd.print("Stop on Red!");
+  delay(gamePrompt);
+
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("Stop on Red!");
+  lcd.setCursor(0,1);
+  lcd.print("In 3");
+  delay(gamePrompt/3);
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("Stop on Red!");
+  lcd.setCursor(0,1);
+  lcd.print("In 2");
+  delay(gamePrompt/3);
+    lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("Stop on Red!");
+  lcd.setCursor(0,1);
+  lcd.print("In 1");
+  delay(gamePrompt/3);
+    lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("Stop on Red!");
+  lcd.setCursor(0,1);
+  lcd.print("GO!");
+
+wait =0;
+int lednum=0;
+  unsigned long previousMillis =0;
+  unsigned long currentMillis = millis();
+  int currentLED =0;
+  int previousLED = 0;
+while(!wait)
+{ 
+  currentMillis = millis();
+if((unsigned long)(currentMillis-previousMillis)>=lcdMovementSpeed)
+{
+  digitalWrite(leds[currentLED],LOW);//Turn off the previous one
+  if(currentLED==6)
+  {
+    currentLED=0;
+  }else
+  {
+    currentLED++;
+  }
+  digitalWrite(leds[currentLED],HIGH);
+  previousMillis = millis();
+  btnState();
+  if(state[GREEN]|state[YELLOW]|state[BLUE]|state[RED])
+  {
+    wait =1;
+    lednum =currentLED;
+    
+  }
+}
+}
+for(int i=0;i<7;i++)
+{
+  digitalWrite(leds[i],LOW);
+}
+debounceDelay = tempD;
+return lednum;
 }//ledMiniGame
+
+
+
+
+
+
+
+
+void btnState()
+{
+  if((millis() - lastDebounceTime)>debounceDelay)
+  {
+    if(digitalRead(btns[RED]))
+    {
+      state[RED] = digitalRead(btns[RED]);
+      lastDebounceTime = millis();
+    }
+    if(digitalRead(btns[BLUE]))
+    {
+      state[BLUE] = digitalRead(btns[BLUE]);
+      lastDebounceTime = millis();
+    }if(digitalRead(btns[GREEN]))
+    {
+      state[GREEN] = digitalRead(btns[GREEN]);
+      lastDebounceTime = millis();
+    }if(digitalRead(btns[YELLOW]))
+    {
+      state[YELLOW] = digitalRead(btns[YELLOW]);
+      lastDebounceTime = millis();
+    }
+  }
+}
+void btnOff()
+{
+  state[RED] =0;
+  state[BLUE] =0;
+  state[YELLOW] =0;
+  state[GREEN] =0;
+}
