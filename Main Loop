@@ -1,3 +1,9 @@
+//lcd.setCursor(0, 0); // top left
+//lcd.setCursor(15, 0); // top right
+//lcd.setCursor(0, 1); // bottom left
+//lcd.setCursor(15, 1); // bottom right
+//https://www.arduino.cc/en/Reference/LiquidCrystal
+
 #include <FastIO.h>
 #include <I2CIO.h>
 #include <LCD.h>
@@ -16,9 +22,10 @@
   const int btns[] = {2,3,4,5};
   const int leds[] = {7,8,9,10,11,12,13};
 LiquidCrystal_I2C lcd(0x3F,2,1,0,4,5,6,7);
+int TotPlayers =3;
 void setup() {
   Serial.begin(9600);
-  
+  randomSeed(analogRead(0));
   lcd.begin(16, 2);
   lcd.setBacklightPin(3,POSITIVE);
   lcd.setBacklight(HIGH);
@@ -33,12 +40,40 @@ void setup() {
     pinMode(btns[i],INPUT);
   }
   //Find number of players
-  
-  
-  //Create Vector assign antichrists
-  
+  int TotPlayers =4;
+  std::vector<bool> players;
+  for (int i =0; i<TotPlayers;i++)//Create vector with empty roles
+  {
+    players.push_back(0);
+  }
+  int antChrists = TotPlayers/3;//Find total number of ant christs
+  while(antChrists >0)//Assign players 0 for regular player 1 for antichrists
+  {
+    int randNumber = random(TotPlayers);
+    if(players[randNumber] == 0)//If the random player is not already an antchrist make them an ant christ.
+    {
+      antChrists--;
+      players[randNumber] =1;
+    }
+  }
   //Tell player roles
-  
+  for( int i =0;i<TotPlayers;i++)
+  {
+    lcd.clear();
+    lcd.print("Are you ready?");
+    setCursor(0,1);
+    lcd.print("Press Green");
+    while(!digitalRead(btns[GREEN])
+    {
+      
+    }
+    }
+    if(players[i]==1)//They are ant christ
+    {
+      lcd.clear();
+      
+    }
+  }
   
  
 }
