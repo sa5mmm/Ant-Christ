@@ -1,7 +1,3 @@
-//lcd.setCursor(0, 0); // top left
-//lcd.setCursor(15, 0); // top right
-//lcd.setCursor(0, 1); // bottom left
-//lcd.setCursor(15, 1); // bottom right
 //https://www.arduino.cc/en/Reference/LiquidCrystal
 
 #include <FastIO.h>
@@ -15,14 +11,21 @@
 
 #include <Wire.h>
 #include <ArduinoSTL.h>
-
-
-  enum btnColors {BLUE,GREEN,YELLOW,RED};
+#include <string>
+unsigned long lastDebounceTime =0;
+unsigned long debounceDelay = 50;
+  enum btnColors {RED,BLUE,GREEN,YELLOW};
   enum led {blue1,green1,yellow1,red1,yellow2,green2,blue2};
   const int btns[] = {2,3,4,5};
   const int leds[] = {7,8,9,10,11,12,13};
 LiquidCrystal_I2C lcd(0x3F,2,1,0,4,5,6,7);
+int ants =100;
 int TotPlayers =3;
+int MaxNumAdvisors =0;
+bool passOrFail(int advisors);
+void events();
+int ledMiniGame(int lcdMovementSpeed);
+int randNumber;
 void setup() {
   Serial.begin(9600);
   randomSeed(analogRead(0));
@@ -30,7 +33,6 @@ void setup() {
   lcd.setBacklightPin(3,POSITIVE);
   lcd.setBacklight(HIGH);
   lcd.clear();
-  //lcd.print("Hello World");
   for ( int i =0; i< 7;i++)//Initialize leds as output
   {
     pinMode(leds[i],OUTPUT);
@@ -40,7 +42,34 @@ void setup() {
     pinMode(btns[i],INPUT);
   }
   //Find number of players
-  int TotPlayers =4;
+while(!digitalRead(btns[GREEN]))
+{
+  lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print(String("# Players: ")+String(TotPlayers));
+    lcd.setCursor(0,1);
+    lcd.print("BLU^ YLOv GRN K");
+    if(digitalRead(btns[BLUE]))
+    {
+      
+      TotPlayers++;
+    }else if (digitalRead(btns[YELLOW]))
+    {
+      if(TotPlayers>3)
+      {
+        TotPlayers--;
+      }else
+      {
+        lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("Cannot have less than 3 players!");
+      }
+    }
+}
+
+
+  MaxNumAdvisors = TotPlayers *2/3;
+
   std::vector<bool> players;
   for (int i =0; i<TotPlayers;i++)//Create vector with empty roles
   {
@@ -60,25 +89,172 @@ void setup() {
   for( int i =0;i<TotPlayers;i++)
   {
     lcd.clear();
+    lcd.setCursor(0,0);
     lcd.print("Are you ready?");
-    setCursor(0,1);
+    lcd.setCursor(0,1);
     lcd.print("Press Green");
-    while(!digitalRead(btns[GREEN])
+    while(digitalRead(btns[GREEN])==HIGH)
     {
-      
-    }
     }
     if(players[i]==1)//They are ant christ
     {
-      lcd.clear();
-      
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("You are an AntChrist!");
+    lcd.setCursor(0,1);
+    lcd.print("Press Green to continue!");
+    while(digitalRead(btns[GREEN])==HIGH)
+    {
+    }
+    }else
+    {
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("You are an Ant!");
+    lcd.setCursor(0,1);
+    lcd.print("Press Green to continue!");
+    while(digitalRead(btns[GREEN])==HIGH)
+    {
     }
   }
+  }
+}
   
  
-}
+
 
 void loop() {
   // put your main code here, to run repeatedly:
 
 }
+bool passOrFail(int advisors) {
+  int pass,fail;
+
+  for(int i = advisors; i < MaxNumAdvisors; i++) {
+
+    while(digitalRead((!btns[GREEN])) && digitalRead(!btns[RED])) {
+    lcd.clear();
+    lcd.begin(0, 0);
+    lcd.print("Ready to Choose?");
+    lcd.setCursor(0, 1);
+    lcd.print("Green yes, Red no");
+    digitalRead(btns[GREEN]);
+    digitalRead(btns[RED]);
+    if(digitalRead(btns[GREEN]) == HIGH){
+      break;
+    }
+    }
+    while(digitalRead((!btns[GREEN])) && digitalRead(!btns[RED])){
+    lcd.clear();
+    lcd.begin(0,0);
+    lcd.print("Advisor ");
+    lcd.print(i);
+    lcd.setCursor(0, 1);
+    lcd.print("Pass or Fail?");
+    delay(2000);
+    }
+    digitalRead(btns[GREEN]);
+    digitalRead(btns[RED]);
+    if(digitalRead(btns[GREEN]) == HIGH){
+      pass += 1;
+    }else if(digitalRead(btns[RED]) == HIGH) {
+      fail += 1;
+    }
+  
+    }
+  if(pass >= fail) {
+    return true;
+  }else{
+    return false;
+  }
+}
+void events(){
+  int lcdMovementSpeed;
+  int eventFlag;
+  randNumber = random(0, 1);
+  if(passOrFail(MaxNumAdvisors) == true) {
+  lcdMovementSpeed = 1000;//easy
+  } else {
+    lcdMovementSpeed = 100;//difficult
+  }
+  if(randNumber == 0) {//0 is good event
+    //good event
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Good Event!");
+    eventFlag = 0;//Good Event
+    delay(3000);
+  } else {//1 is bad event
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Bad Event.");
+    eventFlag = 1;//Bad event
+  }
+
+  if(ledMiniGame(lcdMovementSpeed) == blue1 || (ledMiniGame(lcdMovementSpeed) == blue2)){
+    //set the probability
+    //lose 75% of ants
+    if(eventFlag == 1) {
+      ants = ants - (0.75*ants);
+    }
+    //or gain 0% of ants so do nothing for else
+    
+  } else if(ledMiniGame(lcdMovementSpeed) == green1 || (ledMiniGame(lcdMovementSpeed) == green2)) {
+    //lose 50% of ants
+    //gain 25% of ants
+    if(eventFlag == 1) {//Bad event
+      ants = ants - (ants*0.50);
+    } else {
+      ants = ants + (ants*0.25);
+    }
+  } else if(ledMiniGame(lcdMovementSpeed) == yellow1 || (ledMiniGame(lcdMovementSpeed) == yellow2)) {
+    //lose 25% of ants
+    if(eventFlag == 1) {
+      ants = ants - (ants*0.25);
+    }else {//gain 75% of ants
+      ants = ants + (ants*0.75);
+    }
+    
+  } else if(ledMiniGame(lcdMovementSpeed) == red1) {
+    //lose 0% of ants nothing to be done for eventFlag == 1
+    //gain 100% of ants
+    if(eventFlag == 0) {//good event
+      ants = ants + (ants);
+    }
+  }
+  
+  
+}//void events
+
+
+//mini game
+int ledMiniGame(int lcdMovementSpeed){//returns a percentage of pass or fail
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("A test of skill!");
+  delay(3000);//delay three seconds
+
+while(!digitalRead(btns[GREEN])) {
+  for (int i = 0; i < 7; i++){
+    //if buttonRead == 0, button is not being pressed
+    digitalWrite(leds[i], HIGH);
+    delay(lcdMovementSpeed);
+    digitalWrite(leds[i], LOW);
+    digitalRead(btns[GREEN]);
+    if(digitalRead(btns[GREEN]) == HIGH){
+      return i;
+    }
+  }
+
+  for (int i = 7; i > 0; i--) {
+    digitalWrite(leds[i], HIGH);
+    delay(lcdMovementSpeed);
+    digitalWrite(leds[i], LOW);
+    digitalRead(btns[GREEN]);
+    if(digitalRead(btns[GREEN]) == HIGH){
+      return i;
+    }
+  }
+  
+}
+}//ledMiniGame
