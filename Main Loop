@@ -16,8 +16,6 @@
   const int btns[] = {2,3,4,5};
   const int leds[] = {7,8,9,10,11,12,13};
 LiquidCrystal_I2C lcd(0x3F,2,1,0,4,5,6,7);
-//2 thirds decide
-//
 void setup() {
   Serial.begin(9600);
   
@@ -25,7 +23,7 @@ void setup() {
   lcd.setBacklightPin(3,POSITIVE);
   lcd.setBacklight(HIGH);
   lcd.clear();
-  lcd.print("Hello World");
+  //lcd.print("Hello World");
   for ( int i =0; i< 7;i++)//Initialize leds as output
   {
     pinMode(leds[i],OUTPUT);
@@ -34,7 +32,15 @@ void setup() {
   {
     pinMode(btns[i],INPUT);
   }
+  //Find number of players
   
+  
+  //Create Vector assign antichrists
+  
+  //Tell player roles
+  
+  
+ 
 }
 
 void loop() {
