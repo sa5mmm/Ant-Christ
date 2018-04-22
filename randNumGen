@@ -1,0 +1,17 @@
+
+int randNum;
+void setup() {
+  // put your setup code here, to run once:
+  randomSeed(analog(0));
+  Serial.begin(9600);
+  
+  
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  randNum = random(0, 1);
+  Serial.print("randNum = ");
+  Serial.println(randNum);
+  delay(1000);
+}
