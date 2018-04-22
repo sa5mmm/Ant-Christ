@@ -59,7 +59,21 @@ Serial.begin(9600);
   {
     pinMode(btns[i],INPUT);
   }
-
+wait =0;
+while(!wait)
+{ 
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("   ANT CHRIST");
+  lcd.setCursor(0,1);
+  lcd.print("GRN to cont");
+    btnState();
+  if(state[GREEN])
+  {
+    wait = state[GREEN];
+  }
+  btnOff();  
+}
 //FIND NUmber of players
 
 btnOff();
