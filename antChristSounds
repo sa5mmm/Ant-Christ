@@ -1,0 +1,38 @@
+//declarations
+const in maxNotes = 5;
+int notes[maxNotes] = {261, 277, 294, 311, 330};
+enum musicNotes {C, Csharp, D, Dsharp, E};
+int buzzer = 6; 
+
+void setup() {
+  // put your setup code here, to run once:
+  pinMode(buzzer, OUTPUT);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+
+}
+
+void chirp() {
+  tone(buzzer, notes[C], 500);
+  delay(300);
+  
+  tone(buzzer, notes[C], 500);
+  delay(300);
+  
+  tone(buzzer, notes[E], 500);
+  delay(600);
+  
+}
+
+void badChirp() {
+  tone(buzzer, notes[E], 500);
+  delay(300);
+  
+  tone(buzzer, notes[E], 500);
+  delay(300);
+  
+  tone(buzzer, notes[Dsharp], 500);
+  delay(600);
+}
