@@ -1,0 +1,95 @@
+//declarations
+const int maxNotes = 5;
+int notes[maxNotes] = {261, 277, 294, 311, 330};
+enum musicNotes {C, Csharp, D, Dsharp, E};
+int buzzer = 6; 
+enum led {blue1,green1,yellow1,red1,yellow2,green2,blue2};
+const int leds[] = {7,8,9,10,11,12,13};
+
+void setup() {
+  // put your setup code here, to run once:
+  pinMode(buzzer, OUTPUT);
+}
+
+
+
+void chirp() {
+  unsigned long previousMillis =0;
+  unsigned long currentMillis = millis();
+
+  if((unsigned long)(currentMillis-previousMillis) >= 250) {
+  tone(buzzer, notes[C], 500);
+  previousMillis = millis();
+  btnState();
+  if(state[GREEN]|state[YELLOW]|state[BLUE]|state[RED])
+  {
+    wait =1;
+    lednum =currentLED;
+    
+  }
+  
+  tone(buzzer, notes[C], 500);
+  previousMillis = millis();
+  btnState();
+  if(state[GREEN]|state[YELLOW]|state[BLUE]|state[RED])
+  {
+    wait =1;
+    lednum =currentLED;
+    
+  }
+  
+  tone(buzzer, notes[E], 500);
+  previousMillis = millis();
+  btnState();
+  if(state[GREEN]|state[YELLOW]|state[BLUE]|state[RED])
+  {
+    wait =1;
+    lednum =currentLED;
+    
+  }
+  
+}
+}
+
+void badChirp() {
+  
+  tone(buzzer, notes[E], 500);
+  delay(300);
+  
+  tone(buzzer, notes[E], 500);
+  delay(300);
+  
+  tone(buzzer, notes[Dsharp], 500);
+  delay(600);
+}
+}
+void introLights() {
+  
+   digitalWrite(leds[blue1], HIGH);
+   digitalWrite(leds[blue2], HIGH); 
+   delay(500);
+   digitalWrite(leds[blue1], LOW);
+   digitalWrite(leds[blue2], LOW);
+   delay(500);
+
+   digitalWrite(leds[green1], HIGH);
+   digitalWrite(leds[green2], HIGH); 
+   delay(500);
+   digitalWrite(leds[green1], LOW);
+   digitalWrite(leds[green2], LOW);
+   delay(500);
+
+   digitalWrite(leds[yellow1], HIGH);
+   digitalWrite(leds[yellow2], HIGH); 
+   delay(500);
+   digitalWrite(leds[yel1ow1], LOW);
+   digitalWrite(leds[yellow2], LOW);
+   delay(500);
+   
+for(int i = 0; i < 3; i++){
+   digitalWrite(leds[red1], HIGH);
+   delay(100);
+   digitalWrite(leds[red1], HIGH);
+   delay(100);
+}
+}
