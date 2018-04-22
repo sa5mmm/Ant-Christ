@@ -30,6 +30,7 @@ const int MINPlayers =3;
 int numAdvisors =0;
 int antChrists =0;
 //Game Variables
+int currentPlayer=0;
 int ants = 100;
 int gamePrompt = 3000;
 std::vector<bool> players;
@@ -106,7 +107,6 @@ while(!wait)
   }
   btnOff();
 }
-Serial.print("end wait for button");
 lcd.clear();
 btnState();
 numAdvisors = numPlayers*2/3;
@@ -186,6 +186,40 @@ while(!wait)
 }
 
 void loop() {
+wait =0;
+while(!wait)
+{ 
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print(String("Plyr")+String(currentPlayer+1)+String(" is Queen"));
+  lcd.setCursor(0,1);
+  lcd.print("GRN to cont");
+    btnState();
+
+  if(state[GREEN])
+  {
+    wait = state[GREEN];
+  }
+  btnOff();
+}
+wait =0;
+while(!wait)
+{ 
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print(String("Plz pick")+String(numAdvisors)+String("Advsrs"));
+  lcd.setCursor(0,1);
+  lcd.print("GRN to cont");
+    btnState();
+
+  if(state[GREEN])
+  {
+    wait = state[GREEN];
+  }
+  btnOff();
+}
+events();
+  
 
 }
 
